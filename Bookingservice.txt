@@ -1,0 +1,53 @@
+using Microsoft.EntityFrameworkCore;
+using Real_estate;
+using RealEstateBooking.Data;
+using RealEstateBooking.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace RealEstateBooking.Services
+{
+    public class BookingService
+    {
+        private readonly AppDbContext _context;
+
+        public BookingService(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        // بيرجع false لو المستخدم أو العقار مش موجود، أو العقار اتحجز قبل كده
+        public async Task<bool> AddBookingAsync(int userId, int propertyId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            var property = await _context.Properties.FindAsync(propertyId);
+
+            if (user == null || property == null || !property.IsAvailable)
+            {
+                return false;
+            }
+
+            var booking = new Booking
+            {
+                UserId = userId,
+                PropertyId = propertyId
+            };
+
+            property.IsAvailable = false;   // العقار بقى محجوز
+
+            await _context.Bookings.AddAsync(booking);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        // Include بتجيب بيانات المستخدم والعقار مع كل حجز
+        public async Task<List<Booking>> GetAllBookingsAsync()
+        {
+            return await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Property)
+                .ToListAsync();
+        }
+    }
+}
