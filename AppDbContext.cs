@@ -1,22 +1,17 @@
 using Microsoft.EntityFrameworkCore;
+using RealEstate.ConsoleApp.Models;
+using System.Collections.Generic;
 
-namespace Real_estate;
-
-public class AppDbContext : DbContext
+namespace RealEstate.ConsoleApp.Data
 {
-    public DbSet<User> Users { get; set; } = null!;
-    public DbSet<Property> Properties { get; set; } = null!;
-    public DbSet<Booking> Bookings { get; set; } = null!;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public class AppDbContext : DbContext
     {
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
         {
-            optionsBuilder.UseSqlite("Data Source=realestate.db");
+
         }
+
+        public DbSet<Property> Properties { get; set; } = null!;
     }
 }
